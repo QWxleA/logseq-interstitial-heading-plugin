@@ -1,27 +1,24 @@
 {
-  "name": "logseq-starter-plugin",
-  "version": "1.0",
-  "description": "Starter Plugin",
+  "name": "logseq-interstitial-timestamp",
+  "version": "0.0.1",
+  "author": "Qwxlea",
+  "description": "Add timestamp, for use with an interstitial journal.",
   "main": "dist/index.html",
   "targets": {
     "main": false
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "parcel build --no-source-maps index.html --public-url ./"
-  },
-  "keywords": [],
-  "author": "Aryan Sawhney",
-  "license": "MIT",
-  "dependencies": {
-    "@logseq/libs": "0.0.1-alpha.34"
+    "build": "parcel build --public-url ./ --no-source-maps index.html"
   },
   "logseq": {
-    "id": "logseq-starter-plugin",
-    "title": "logseq-starter-plugin",
-    "icon": "./icon.png"
+    "icon": "./icon.png",
+    "id": "logseq-interstitial-timestamp"
+  },
+  "dependencies": {
+    "@logseq/libs": "^0.0.1-alpha.35"
   },
   "devDependencies": {
     "parcel": "^2.0.0"
-  }
+  },
+  "license": "MIT"
 }
