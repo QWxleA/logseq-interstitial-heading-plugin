@@ -1,3 +1,8 @@
+# Interstitial journaling helper
+
+> Interstitial journaling is a productivity technique created by Tony Stubblebine. To my knowledge, it’s the simplest way to combine note-taking, tasks, and time tracking in one unique workflow. -- [Interstitial journaling: combining notes, to-do & time tracking - Ness Labs](https://nesslabs.com/interstitial-journaling)
+
+This plugin makes it *just* a tiny bit easier. Two shortcuts that fill in the time, *and* add the correct Markdown to make it look nice.
 
 ## Installation
 
@@ -19,11 +24,12 @@
 - Unzip it.
 - Click Load unpacked plugin, and select destination directory to the unziped folder.
 
-MIT
-
 ## Usage
 
-Use `Ctrl-t` to insert a timestamped heading in the current block/line.
+- Use `Ctrl-t` to insert a timestamp in the current block/line.
+- Use `Ctrl-Shift-t` to insert a timestamped heading in the current block/line.
+
+In the settings you can reverse this, so the default `Ctrl-t` becomes a timestamed heading.
 
 ## Configuration
 
@@ -31,3 +37,4 @@ Under settings you can chnage the level of the heading, it defaults to 3 (`### H
 
 ## Licence
 
+MIT
