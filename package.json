@@ -1,6 +1,6 @@
 {
   "name": "logseq-interstitial-timestamp",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "author": "Qwxlea",
   "description": "Add timestamp, for use with an interstitial journal.",
   "main": "dist/index.html",

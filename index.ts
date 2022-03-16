@@ -24,7 +24,7 @@ async function updateBlock(block,simple) {
         ? block.content.replace(/^#{1,6}\s+/, '')
         : block.content;
     var today = new Date();
-    let time = today.getHours() + ":" + today.getMinutes()
+    let time = today.getHours() + ":" + String(today.getMinutes()).padStart(2, '0')
     let timestamp = simple ? ' ' + time + ' ' : '**' + time + '** '
     let header = simple ? '#'.repeat(logseq.settings.level) : ''
     await logseq.Editor.updateBlock(
@@ -48,10 +48,6 @@ async function insertInterstitional(simple) {
 }
 
 async function main() {
-    //logseq.Editor.registerSlashCommand('Create SmartBlock (guided)', async () => {
-    //  await logseq.Editor.insertAtEditingCursor(`{{renderer :smartblock, template name, button title, sibling?}} `);
-      // templaterBlock = await logseq.Editor.getCurrentBlock();
-    //});
 
     logseq.App.registerCommandPalette(
       {
