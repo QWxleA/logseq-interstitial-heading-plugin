@@ -2,6 +2,8 @@
 
 > Interstitial journaling is a productivity technique created by Tony Stubblebine. To my knowledge, it’s the simplest way to combine note-taking, tasks, and time tracking in one unique workflow. -- [Interstitial journaling: combining notes, to-do & time tracking - Ness Labs](https://nesslabs.com/interstitial-journaling)
 
+![journal](./journal.png)
+
 This plugin makes it *just* a tiny bit easier. Two shortcuts that fill in the time, *and* add the correct Markdown to make it look nice.
 
 ## Installation
