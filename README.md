@@ -4,7 +4,7 @@
 
 ![journal](./journal.png)
 
-This plugin makes it *just* a tiny bit easier. Two shortcuts that fill in the time, *and* add the correct Markdown to make it look nice.
+This plugin makes it *just* a tiny bit easier. Two shortcuts that fill in the time, *and* add the correct markup to make it look nice.
 
 ## Installation
 
