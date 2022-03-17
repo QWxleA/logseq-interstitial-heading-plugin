@@ -38,7 +38,7 @@ In the settings you can reverse this, so the default `Ctrl-t` becomes a timestam
 
 ## Configuration
 
-Under settings you can chnage the level of the heading, it defaults to 3 (`### HH:MM <optional title>`)
+Under settings you can change the level of the heading, it defaults to 3 (`### HH:MM <optional title>`)
 
 ## Licence
 
