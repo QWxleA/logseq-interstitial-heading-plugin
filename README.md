@@ -1,5 +1,8 @@
 # Interstitial journaling helper
 
+[![latest release version](https://img.shields.io/github/v/release/QWxleA/logseq-interstitial-heading-plugin)](https://github.com/QWxleA/logseq-interstitial-heading-plugin)
+[![License](https://img.shields.io/github/license/QWxleA/logseq-interstitial-heading-plugin?color=blue)](https://github.com/QWxleA/logseq-interstitial-heading-plugin/blob/main/LICENSE)
+
 > Interstitial journaling is a productivity technique created by Tony Stubblebine. To my knowledge, it’s the simplest way to combine note-taking, tasks, and time tracking in one unique workflow. -- [Interstitial journaling: combining notes, to-do & time tracking - Ness Labs](https://nesslabs.com/interstitial-journaling)
 
 ![journal](./journal.png)
