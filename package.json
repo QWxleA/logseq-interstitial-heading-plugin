@@ -1,8 +1,8 @@
 {
-  "name": "logseq-interstitial-timestamp",
-  "version": "0.0.2",
+  "name": "logseq-interstitial-heading-plugin",
+  "version": "0.0.2c",
   "author": "Qwxlea",
-  "description": "Add timestamp, for use with an interstitial journal.",
+  "description": "Insert a bold timestamp, or heading in the current line. Makes Interstitial journaling easier",
   "main": "dist/index.html",
   "targets": {
     "main": false
@@ -12,7 +12,7 @@
   },
   "logseq": {
     "icon": "./icon.png",
-    "id": "logseq-interstitial-timestamp"
+    "id": "logseq-interstitial-heading-plugin"
   },
   "dependencies": {
     "@logseq/libs": "^0.0.1-alpha.35"

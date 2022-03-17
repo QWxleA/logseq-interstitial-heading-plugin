@@ -15,7 +15,7 @@ This plugin makes it *just* a tiny bit easier. Two shortcuts that fill in the ti
 - Restart the application.
 - Click 3 dots and go to Plugins (or `Esc t p`).
 
-### (Not yet available) Install plugins from Marketplace (recommended) 
+### Install plugins from Marketplace (recommended) 
 
 - Click Marketplace button and then click Plugins.
 - Find the plugin and click Install.
