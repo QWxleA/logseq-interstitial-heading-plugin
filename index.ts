@@ -47,7 +47,40 @@ async function insertInterstitional(simple) {
   }
 }
 
+async function parseQuery(randomQuery:boolean,queryTag:string){
+  // https://stackoverflow.com/questions/19156148/i-want-to-remove-double-quotes-from-a-string
+  const queryRandom = `[:find (pull ?b [*])
+  :where
+  [?b :block/path-refs [:block/name "${queryTag.toLowerCase().trim().replace(/^["'](.+(?=["']$))["']$/, '$1')}"]]]`
+  const queryDaily = `[:find (pull ?b [*])
+  :where
+  [?b :block/path-refs [:block/name "${queryTag.toLowerCase().trim().replace(/^["'](.+(?=["']$))["']$/, '$1')}"]]]
+  [?p :block/journal?]
+  [?p :block/journal-day ?yest]
+  ]
+  :inputs [:yesterday]`
+  let query = ( randomQuery ) ? queryRandom : queryDaily
+  try { let results = await logseq.DB.datascriptQuery(query) }
+  catch (error) {return `Sorry, an interstial error wiggled in your life (severely lacking ${queryTag})`}
+  //Let this be, it won't hurt even if there's only one hit
+  let flattenedResults = results.map((mappedQuery) => ({
+    uuid: mappedQuery[0].uuid['$uuid$'],
+  }))
+  let index = Math.floor(Math.random()*flattenedResults.length)
+  const origBlock = await logseq.Editor.getBlock(flattenedResults[index].uuid, {
+    includeChildren: true,
+  });
+  return `((${flattenedResults[index].uuid}))`
+}
+
 async function main() {
+
+    logseq.App.onMacroRendererSlotted(async ({ slot, payload }) => {
+      var [type, randomQ , tagQ ] = payload.arguments
+      if (type !== ':interstitial') return
+      const block = await parseQuery(randomQ,tagQ)
+      logseq.Editor.updateBlock(payload.uuid, block)
+    })
 
     logseq.App.registerCommandPalette(
       {
