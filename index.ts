@@ -78,7 +78,7 @@ async function parseQuery(randomQuery:boolean,queryTag:string){
 
 async function checkParent(uuid){
   console.log("6. checkParent uuid:",uuid)
-  const block = await logseq.Editor.getBlock(uuid, { includeChildren: true})
+  const block = logseq.Editor.getBlock(uuid, { includeChildren: true})
   console.log("7. block",block)
 
   if (block.properties.template != undefined) {
@@ -104,18 +104,18 @@ async function main() {
     logseq.App.onMacroRendererSlotted(async ({ slot, payload }) => {
       var [type, randomQ , tagQ ] = payload.arguments
       if (type !== ':interstitial') return
-      const block = await parseQuery(randomQ,tagQ)
+      const block = parseQuery(randomQ,tagQ)
 
       console.log("1. Running onMacroRendererSlotted",payload)
       //is the block in a template?
-      if (await checkParent(payload.uuid)) { 
+      if (checkParent(payload.uuid)) { 
         console.log("2. Discarding edit")
         return }
       else {
         console.log("3. Replacing block")
         // const block = await parseQuery(randomQ,tagQ)
         console.log("4. block updated")
-        await logseq.Editor.updateBlock(payload.uuid, block)
+        logseq.Editor.updateBlock(payload.uuid, block)
         console.log("5. edited")
       }
     })
