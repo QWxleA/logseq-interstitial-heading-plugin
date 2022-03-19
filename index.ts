@@ -77,26 +77,37 @@ async function parseQuery(randomQuery:boolean,queryTag:string){
 }
 
 async function checkParent(uuid){
-  console.log("6. checkParent uuid:",uuid)
-  const block = logseq.Editor.getBlock(uuid, { includeChildren: true})
-  console.log("7. block",block)
+  try {
+    console.log("6. checkParent uuid:",uuid)
+    const block = await logseq.Editor.getBlock(uuid, { includeChildren: true})
+    if (block) {
+      console.log("7. block",block)
 
-  if (block.properties.template != undefined) {
-      //it's a template
-      console.log("8. template: block true props",block.properties)
-      return true
-  } 
-  else {
-    if (block.parent != null && block.parent.id !== block.page.id) {
-          console.log("9. loop", block.parent)
-        checkParent(block.parent.id)
-      }
+      if (block.properties) {
+        if (block.properties.template != undefined) {
+          //it's a template
+          console.log("8. template: block true props",block.properties)
+          return true
+        } 
+        else {
+          if (block.parent != null && block.parent.id !== block.page.id) {
+              console.log("9. loop", block.parent)
+              checkParent(block.parent.id)
+          }
+          else {
+            //it's not a template
+            console.log("10. def not a template",block)
+            return false
+          }
+        }
+      } 
       else {
-        //it's not a template
-        console.log("10. def not a template",block)
-        return false
+            //it's not a template
+            console.log("11. def not a template (no properties)",block)
+            return false
       }
-  }
+    }      
+  } catch (error) { console.log(error) }
 }
 
 async function main() {
@@ -110,6 +121,13 @@ async function main() {
       //is the block in a template?
       if (checkParent(payload.uuid)) { 
         console.log("2. Discarding edit")
+        logseq.provideUI({
+          key: "luckysheet",
+          slot,
+          template: `REPLACEMENT`,
+          reset: true,
+          style: { flex: 1 },
+        })
         return }
       else {
         console.log("3. Replacing block")
