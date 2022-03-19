@@ -60,17 +60,43 @@ async function parseQuery(randomQuery:boolean,queryTag:string){
   ]
   :inputs [:yesterday]`
   let query = ( randomQuery ) ? queryRandom : queryDaily
-  try { let results = await logseq.DB.datascriptQuery(query) }
-  catch (error) {return `Sorry, an interstial error wiggled in your life (severely lacking ${queryTag})`}
-  //Let this be, it won't hurt even if there's only one hit
-  let flattenedResults = results.map((mappedQuery) => ({
-    uuid: mappedQuery[0].uuid['$uuid$'],
-  }))
-  let index = Math.floor(Math.random()*flattenedResults.length)
-  const origBlock = await logseq.Editor.getBlock(flattenedResults[index].uuid, {
-    includeChildren: true,
-  });
-  return `((${flattenedResults[index].uuid}))`
+  // console.log("q",query)
+  try { 
+    let results = await logseq.DB.datascriptQuery(query) 
+    console.log("res",results)
+    //Let this be, it won't hurt even if there's only one hit
+    let flattenedResults = results.map((mappedQuery) => ({
+      uuid: mappedQuery[0].uuid['$uuid$'],
+    }))
+    let index = Math.floor(Math.random()*flattenedResults.length)
+    const origBlock = await logseq.Editor.getBlock(flattenedResults[index].uuid, {
+      includeChildren: true,
+    });
+    return `((${flattenedResults[index].uuid}))`
+  } catch (error) {return `Sorry, an interstial error wiggled in your life (severely lacking ${queryTag})`}
+}
+
+async function checkParent(uuid){
+  console.log("6. checkParent uuid:",uuid)
+  const block = await logseq.Editor.getBlock(uuid, { includeChildren: true})
+  console.log("7. block",block)
+
+  if (block.properties.template != undefined) {
+      //it's a template
+      console.log("8. template: block true props",block.properties)
+      return true
+  } 
+  else {
+    if (block.parent != null && block.parent.id !== block.page.id) {
+          console.log("9. loop", block.parent)
+        checkParent(block.parent.id)
+      }
+      else {
+        //it's not a template
+        console.log("10. def not a template",block)
+        return false
+      }
+  }
 }
 
 async function main() {
@@ -79,7 +105,19 @@ async function main() {
       var [type, randomQ , tagQ ] = payload.arguments
       if (type !== ':interstitial') return
       const block = await parseQuery(randomQ,tagQ)
-      logseq.Editor.updateBlock(payload.uuid, block)
+
+      console.log("1. Running onMacroRendererSlotted",payload)
+      //is the block in a template?
+      if (await checkParent(payload.uuid)) { 
+        console.log("2. Discarding edit")
+        return }
+      else {
+        console.log("3. Replacing block")
+        // const block = await parseQuery(randomQ,tagQ)
+        console.log("4. block updated")
+        await logseq.Editor.updateBlock(payload.uuid, block)
+        console.log("5. edited")
+      }
     })
 
     logseq.App.registerCommandPalette(
