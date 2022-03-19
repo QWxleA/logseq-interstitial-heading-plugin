@@ -63,7 +63,7 @@ async function parseQuery(randomQuery:boolean,queryTag:string){
   // console.log("q",query)
   try { 
     let results = await logseq.DB.datascriptQuery(query) 
-    console.log("res",results)
+    // console.log("res",results)
     //Let this be, it won't hurt even if there's only one hit
     let flattenedResults = results.map((mappedQuery) => ({
       uuid: mappedQuery[0].uuid['$uuid$'],
@@ -79,34 +79,32 @@ async function parseQuery(randomQuery:boolean,queryTag:string){
 async function checkParent(uuid){
   try {
     console.log("6. checkParent uuid:",uuid)
-    const block = await logseq.Editor.getBlock(uuid, { includeChildren: true})
-    if (block) {
-      console.log("7. block",block)
+    // const block = logseq.Editor.getBlock(uuid, { includeChildren: true})
+    logseq.Editor.getBlock(uuid, { includeChildren: true}).then(block => {
+      console.log("7then. block",block)
 
-      if (block.properties) {
-        if (block.properties.template != undefined) {
-          //it's a template
-          console.log("8. template: block true props",block.properties)
-          return true
-        } 
-        else {
-          if (block.parent != null && block.parent.id !== block.page.id) {
-              console.log("9. loop", block.parent)
-              checkParent(block.parent.id)
-          }
-          else {
-            //it's not a template
-            console.log("10. def not a template",block)
-            return false
-          }
+      if (block) {
+        console.log("7.5 block",block)
+  
+        if (block.properties) {
+          if (block.properties.template != undefined) {
+            //it's a template
+            console.log("8. template: block true props",block.properties)
+            return true
+          } 
         }
-      } 
-      else {
-            //it's not a template
-            console.log("11. def not a template (no properties)",block)
-            return false
-      }
-    }      
+        console.log("8.5 are we ok?", block)
+        if (block.parent != null && block.parent.id !== block.page.id) {
+          console.log("9. loop", block.parent)
+          checkParent(block.parent.id)
+        }
+      }      
+      //no more parents, it's not a template
+      console.log("11. def not a template (no properties)",block)
+      return false
+    })
+    // await block
+               
   } catch (error) { console.log(error) }
 }
 
@@ -115,27 +113,29 @@ async function main() {
     logseq.App.onMacroRendererSlotted(async ({ slot, payload }) => {
       var [type, randomQ , tagQ ] = payload.arguments
       if (type !== ':interstitial') return
-      const block = parseQuery(randomQ,tagQ)
+      // const block = parseQuery(randomQ,tagQ)
 
       console.log("1. Running onMacroRendererSlotted",payload)
       //is the block in a template?
-      if (checkParent(payload.uuid)) { 
-        console.log("2. Discarding edit")
-        logseq.provideUI({
+      const templYN = checkParent(payload.uuid)
+      await templYN
+      console.log("1.5 templYN", templYN)
+      if (templYN === true) { 
+        console.log("2. We are a template")
+        await logseq.provideUI({
           key: "luckysheet",
           slot,
           template: `REPLACEMENT`,
           reset: true,
           style: { flex: 1 },
         })
-        return }
-      else {
-        console.log("3. Replacing block")
-        // const block = await parseQuery(randomQ,tagQ)
-        console.log("4. block updated")
-        logseq.Editor.updateBlock(payload.uuid, block)
-        console.log("5. edited")
+        return 
       }
+      console.log("3. Not a template. Replacing block")
+      const block = await parseQuery(randomQ,tagQ)
+      console.log("4. block updated")
+      await logseq.Editor.updateBlock(payload.uuid, block)
+      console.log("5. edited")
     })
 
     logseq.App.registerCommandPalette(
