@@ -81,27 +81,24 @@ async function checkParent(uuid){
     console.log("6. checkParent uuid:",uuid)
     // const block = logseq.Editor.getBlock(uuid, { includeChildren: true})
     logseq.Editor.getBlock(uuid, { includeChildren: true}).then(block => {
-      console.log("7then. block",block)
+    console.log("7then. block",block)
 
-      if (block) {
-        console.log("7.5 block",block)
-  
-        if (block.properties) {
-          if (block.properties.template != undefined) {
-            //it's a template
-            console.log("8. template: block true props",block.properties)
-            return true
-          } 
-        }
-        console.log("8.5 are we ok?", block)
-        if (block.parent != null && block.parent.id !== block.page.id) {
-          console.log("9. loop", block.parent)
-          checkParent(block.parent.id)
-        }
-      }      
-      //no more parents, it's not a template
-      console.log("11. def not a template (no properties)",block)
-      return false
+    if (block.properties) {
+      if (block.properties.template != undefined) {
+        //it's a template
+        console.log("8. template: block true props",block.properties)
+        return true
+      } 
+    }
+    console.log("8.5 are we ok?", block)
+    if (block.parent != null && block.parent.id !== block.page.id) {
+      console.log("9. loop", block.parent)
+      checkParent(block.parent.id)
+    }
+    
+    //no more parents, it's not a template
+    console.log("11. def not a template (no properties)",block)
+    return false
     })
     // await block
                
