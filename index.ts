@@ -112,30 +112,38 @@ async function checkBlock(uuid){
 
 const main = async () => {
 
-    logseq.App.onMacroRendererSlotted(async ({ slot, payload }) => {
-      try {
-        var [type, randomQ , tagQ ] = payload.arguments
-        if (type !== ':interstitial') return
-  
-        //is the block on a template?
-        const templYN = await checkBlock(payload.uuid)        
-        const block = await parseQuery( randomQ, tagQ)
-        // parseQuery returns false if no block can be found
-        const msg = block ? `<span style="color: green">{{renderer ${payload.arguments} }}</span> (will run with template)` : `<span style="color: red">{{renderer ${payload.arguments} }}</span> (wrong tag?)`
+  logseq.Editor.registerSlashCommand('Create Random Quote', async () => {
+    await logseq.Editor.insertAtEditingCursor(`{{renderer :interstitial, random, quote}} `);
+  });
 
-        if (templYN === true || block === false) { 
-            await logseq.provideUI({
-            key: "interstitial",
-            slot,
-            template: `${msg}`,
-            reset: true,
-            style: { flex: 1 },
-          })
-          return 
-        }
-        else { await logseq.Editor.updateBlock(payload.uuid, block ) }  
-      } catch (error) { console.log(error) }
-    })
+  logseq.Editor.registerSlashCommand('Create Note to Self', async () => {
+    await logseq.Editor.insertAtEditingCursor(`{{renderer :interstitial, yesterday, ntnds}} `);
+  });
+
+  logseq.App.onMacroRendererSlotted(async ({ slot, payload }) => {
+    try {
+      var [type, randomQ , tagQ ] = payload.arguments
+      if (type !== ':interstitial') return
+
+      //is the block on a template?
+      const templYN = await checkBlock(payload.uuid)        
+      const block = await parseQuery( randomQ, tagQ)
+      // parseQuery returns false if no block can be found
+      const msg = block ? `<span style="color: green">{{renderer ${payload.arguments} }}</span> (will run with template)` : `<span style="color: red">{{renderer ${payload.arguments} }}</span> (wrong tag?)`
+
+      if (templYN === true || block === false) { 
+          await logseq.provideUI({
+          key: "interstitial",
+          slot,
+          template: `${msg}`,
+          reset: true,
+          style: { flex: 1 },
+        })
+        return 
+      }
+      else { await logseq.Editor.updateBlock(payload.uuid, block ) }  
+    } catch (error) { console.log(error) }
+  })
 
     logseq.App.registerCommandPalette(
       {

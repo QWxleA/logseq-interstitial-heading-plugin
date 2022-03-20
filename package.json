@@ -1,8 +1,8 @@
 {
   "name": "logseq-interstitial-heading-plugin",
-  "version": "0.0.2c",
+  "version": "0.1.0",
   "author": "Qwxlea",
-  "description": "Insert a bold timestamp, or heading in the current line. Makes Interstitial journaling easier",
+  "description": "Interstitial Journaling helper. Insert a bold timestamp, or heading in the current line. Add (yesterdays) note to self, or a random quote to your template.",
   "main": "dist/index.html",
   "targets": {
     "main": false

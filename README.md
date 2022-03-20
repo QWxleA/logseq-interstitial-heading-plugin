@@ -9,6 +9,8 @@
 
 This plugin makes it *just* a tiny bit easier. Two shortcuts that fill in the time, *and* add the correct markup to make it look nice.
 
+Next, it makes it possible to send a note to yourself (write yesterday, see today), or just add a random note to a template.
+
 ## Installation
 
 ### Preparation
@@ -29,16 +31,30 @@ This plugin makes it *just* a tiny bit easier. Two shortcuts that fill in the ti
 - Unzip it.
 - Click Load unpacked plugin, and select destination directory to the unziped folder.
 
-## Usage
+## Using timestamps
 
 - Use `Ctrl-t` to insert a timestamp in the current block/line.
 - Use `Ctrl-Shift-t` to insert a timestamped heading in the current block/line.
 
 In the settings you can reverse this, so the default `Ctrl-t` becomes a timestamped heading.
 
-## Configuration
+### Configuration
 
 Under settings you can change the level of the heading, it defaults to 3 (`### HH:MM <optional title>`)
+
+## Templates
+
+The plugin gives to commands to insert a "note to self" or a "random quote".
+
+The idea is to put these in a template, and then, when the template is executed, the result will be a linked block to the not e or quote.
+
+Usage:
+
+type: `/Create Note to Self` or `/Create Random Quote`, and it will insert a code-snippet that will then be run with the template.
+
+The code snippets looks like this `{{renderer :interstitial, yesterday, ntnds}}` `{{renderer :interstitial, random, quote}}`.
+
+The parts you can alter are: `yesterday` or `random`, choose one of the two. Next you can alter `ntnds` and `quote`, you can choose any tag you use in your system. These are just the ones I use 😁.
 
 ## Licence
 
