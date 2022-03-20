@@ -119,8 +119,8 @@ const main = async () => {
   
         //is the block on a template?
         const templYN = await checkBlock(payload.uuid)        
-        const block = await parseQuery((randomQ === 'true') ? true : false,tagQ)
-        // returns false if no block
+        const block = await parseQuery( randomQ, tagQ)
+        // parseQuery returns false if no block can be found
         const msg = block ? `<span style="color: green">{{renderer ${payload.arguments} }}</span> (will run with template)` : `<span style="color: red">{{renderer ${payload.arguments} }}</span> (wrong tag?)`
 
         if (templYN === true || block === false) { 

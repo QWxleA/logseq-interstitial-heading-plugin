@@ -18,14 +18,14 @@ This plugin makes it *just* a tiny bit easier. Two shortcuts that fill in the ti
 - Restart the application.
 - Click 3 dots and go to Plugins (or `Esc t p`).
 
-### Install plugins from Marketplace (recommended) 
+### Install plugin from the Marketplace (recommended) 
 
-- Click Marketplace button and then click Plugins.
+- Click the `Marketplace` button and then click `Plugins`.
 - Find the plugin and click Install.
 
-### Install plugins manually
+### Install plugin manually
 
-- Download released version assets from Github.
+- Download a released version assets from Github.
 - Unzip it.
 - Click Load unpacked plugin, and select destination directory to the unziped folder.
 
@@ -34,7 +34,7 @@ This plugin makes it *just* a tiny bit easier. Two shortcuts that fill in the ti
 - Use `Ctrl-t` to insert a timestamp in the current block/line.
 - Use `Ctrl-Shift-t` to insert a timestamped heading in the current block/line.
 
-In the settings you can reverse this, so the default `Ctrl-t` becomes a timestamed heading.
+In the settings you can reverse this, so the default `Ctrl-t` becomes a timestamped heading.
 
 ## Configuration
 
