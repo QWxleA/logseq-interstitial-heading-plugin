@@ -47,19 +47,25 @@ async function insertInterstitional(simple) {
   }
 }
 
-async function parseQuery(randomQuery:boolean,queryTag:string){
+function journalDate() {
+  //hardcoded yesterday
+  let date = (function(d){ d.setDate(d.getDate()-1); return d})(new Date)
+  return parseInt(`${date.getFullYear()}${("0" + (date.getMonth()+1)).slice(-2)}${("0" + date.getDate()).slice(-2)}`,10)
+}
+
+async function parseQuery(randomQuery,queryTag){
   // https://stackoverflow.com/questions/19156148/i-want-to-remove-double-quotes-from-a-string
-  const queryRandom = `[:find (pull ?b [*])
+  let query = `[:find (pull ?b [*])
   :where
   [?b :block/path-refs [:block/name "${queryTag.toLowerCase().trim().replace(/^["'](.+(?=["']$))["']$/, '$1')}"]]]`
-  const queryDaily = `[:find (pull ?b [*])
-  :where
-  [?b :block/path-refs [:block/name "${queryTag.toLowerCase().trim().replace(/^["'](.+(?=["']$))["']$/, '$1')}"]]]
-  [?p :block/journal?]
-  [?p :block/journal-day ?yest]
-  ]
-  :inputs [:yesterday]`
-  let query = ( randomQuery ) ? queryRandom : queryDaily
+  if ( randomQuery == "yesterday" ) {
+    query = `[:find (pull ?b [*])
+    :where
+    [?b :block/path-refs [:block/name "${queryTag.toLowerCase().trim().replace(/^["'](.+(?=["']$))["']$/, '$1')}"]]
+    [?b :block/page ?p]
+    [?p :block/journal? true]
+    [?p :block/journal-day ${journalDate()}]]`
+  }
   try { 
     let results = await logseq.DB.datascriptQuery(query) 
     //Let this be, it won't hurt even if there's only one hit
@@ -74,11 +80,10 @@ async function parseQuery(randomQuery:boolean,queryTag:string){
   } catch (error) {return false}
 }
 
-
 async function isTemplate(block){
-  // if (block.properties) {
+  if (block.properties) {
     if (block.properties.template != undefined) return true
-  // }
+    }
   return false
 }
 
@@ -113,11 +118,10 @@ const main = async () => {
         if (type !== ':interstitial') return
   
         //is the block on a template?
-        const templYN = await checkBlock(payload.uuid)
-        const block = await parseQuery(randomQ,tagQ)
+        const templYN = await checkBlock(payload.uuid)        
+        const block = await parseQuery((randomQ === 'true') ? true : false,tagQ)
+        // returns false if no block
         const msg = block ? `<span style="color: green">{{renderer ${payload.arguments} }}</span> (will run with template)` : `<span style="color: red">{{renderer ${payload.arguments} }}</span> (wrong tag?)`
-
-        //   } catch (error) {return `Error: (no such item: ${queryTag})`}
 
         if (templYN === true || block === false) { 
             await logseq.provideUI({
