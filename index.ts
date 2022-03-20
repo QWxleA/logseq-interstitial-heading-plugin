@@ -60,10 +60,8 @@ async function parseQuery(randomQuery:boolean,queryTag:string){
   ]
   :inputs [:yesterday]`
   let query = ( randomQuery ) ? queryRandom : queryDaily
-  // console.log("q",query)
   try { 
     let results = await logseq.DB.datascriptQuery(query) 
-    // console.log("res",results)
     //Let this be, it won't hurt even if there's only one hit
     let flattenedResults = results.map((mappedQuery) => ({
       uuid: mappedQuery[0].uuid['$uuid$'],
@@ -72,51 +70,37 @@ async function parseQuery(randomQuery:boolean,queryTag:string){
     const origBlock = await logseq.Editor.getBlock(flattenedResults[index].uuid, {
       includeChildren: true,
     });
-    console.log("rq: Found random query", `((${flattenedResults[index].uuid}))`)
     return `((${flattenedResults[index].uuid}))`
-  } catch (error) {return `Sorry, an interstial error wiggled in your life (severely lacking ${queryTag})`}
+  } catch (error) {return false}
 }
 
 
 async function isTemplate(block){
-  if (block.properties) {
-    if (block.properties.template != undefined) {
-      //it's a template
-      console.log("TRUE isTemplate",block.properties)
-      return true
-    } 
-  }
-  console.log("FALSE isTemplate",block)
+  // if (block.properties) {
+    if (block.properties.template != undefined) return true
+  // }
   return false
 }
 
 async function hasParent(block) {
-  console.log("hasParent",block)
-  if (block.parent != null && block.parent.id !== block.page.id) {
-    console.log("hp: Found parent")
-    return true
-  }
+  if (block.parent != null && block.parent.id !== block.page.id) return true
   return false
 }
 
 async function getBlock(uuid) {
   const block = await logseq.Editor.getBlock(uuid)
-  console.log("gb: newblock", uuid, block)
   return block  
 }
 
 async function checkBlock(uuid){
   try {
-    console.log("6. cb: checkBlock uuid:",uuid)
     let block = await getBlock(uuid)
-    console.log("7. cb: block",block)
+    let checkTPL = await isTemplate(block)
+    let checkPRT = await hasParent(block)
 
-    var checkTPL = await isTemplate(block)
-    var checkPRT = await hasParent(block)
-
-    if (checkTPL === false && checkPRT === false) { console.log("cb: false"); return false }
-    if (checkTPL === true )                       { console.log("cb: true "); return true  }
-    console.log("8. cb: LOOP", block.parent.id); return await checkBlock(block.parent.id) 
+    if (checkTPL === false && checkPRT === false) return false
+    if (checkTPL === true )                       return true 
+    return await checkBlock(block.parent.id) 
 
   } catch (error) { console.log(error) }
 }
@@ -126,31 +110,26 @@ const main = async () => {
     logseq.App.onMacroRendererSlotted(async ({ slot, payload }) => {
       try {
         var [type, randomQ , tagQ ] = payload.arguments
-        console.log("1. Running onMacroRendererSlotted",payload)
         if (type !== ':interstitial') return
   
         //is the block on a template?
         const templYN = await checkBlock(payload.uuid)
-        console.log("1.5 Finished check, are we a template?", await templYN)
+        const block = await parseQuery(randomQ,tagQ)
+        const msg = block ? `<span style="color: green">{{renderer ${payload.arguments} }}</span> (will run with template)` : `<span style="color: red">{{renderer ${payload.arguments} }}</span> (wrong tag?)`
 
-        if (templYN === true) { 
-          console.log("2. TRUE We are a template")
-          await logseq.provideUI({
+        //   } catch (error) {return `Error: (no such item: ${queryTag})`}
+
+        if (templYN === true || block === false) { 
+            await logseq.provideUI({
             key: "interstitial",
             slot,
-            template: `REPLACEMENT`,
+            template: `${msg}`,
             reset: true,
             style: { flex: 1 },
           })
           return 
         }
-        else {
-          console.log("3. FALSE Not a template. Replacing block")
-          const block = await parseQuery(randomQ,tagQ)
-          console.log("4. Fetched block uuid")
-          await logseq.Editor.updateBlock(payload.uuid, block)
-          console.log("5. Updated block")
-        }  
+        else { await logseq.Editor.updateBlock(payload.uuid, block ) }  
       } catch (error) { console.log(error) }
     })
 
