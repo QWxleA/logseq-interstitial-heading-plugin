@@ -72,67 +72,86 @@ async function parseQuery(randomQuery:boolean,queryTag:string){
     const origBlock = await logseq.Editor.getBlock(flattenedResults[index].uuid, {
       includeChildren: true,
     });
+    console.log("rq: Found random query", `((${flattenedResults[index].uuid}))`)
     return `((${flattenedResults[index].uuid}))`
   } catch (error) {return `Sorry, an interstial error wiggled in your life (severely lacking ${queryTag})`}
 }
 
-async function checkParent(uuid){
-  try {
-    console.log("6. checkParent uuid:",uuid)
-    // const block = logseq.Editor.getBlock(uuid, { includeChildren: true})
-    logseq.Editor.getBlock(uuid, { includeChildren: true}).then(block => {
-    console.log("7then. block",block)
 
-    if (block.properties) {
-      if (block.properties.template != undefined) {
-        //it's a template
-        console.log("8. template: block true props",block.properties)
-        return true
-      } 
-    }
-    console.log("8.5 are we ok?", block)
-    if (block.parent != null && block.parent.id !== block.page.id) {
-      console.log("9. loop", block.parent)
-      checkParent(block.parent.id)
-    }
-    
-    //no more parents, it's not a template
-    console.log("11. def not a template (no properties)",block)
-    return false
-    })
-    // await block
-               
+async function isTemplate(block){
+  if (block.properties) {
+    if (block.properties.template != undefined) {
+      //it's a template
+      console.log("TRUE isTemplate",block.properties)
+      return true
+    } 
+  }
+  console.log("FALSE isTemplate",block)
+  return false
+}
+
+async function hasParent(block) {
+  console.log("hasParent",block)
+  if (block.parent != null && block.parent.id !== block.page.id) {
+    console.log("hp: Found parent")
+    return true
+  }
+  return false
+}
+
+async function getBlock(uuid) {
+  const block = await logseq.Editor.getBlock(uuid)
+  console.log("gb: newblock", uuid, block)
+  return block  
+}
+
+async function checkBlock(uuid){
+  try {
+    console.log("6. cb: checkBlock uuid:",uuid)
+    let block = await getBlock(uuid)
+    console.log("7. cb: block",block)
+
+    var checkTPL = await isTemplate(block)
+    var checkPRT = await hasParent(block)
+
+    if (checkTPL === false && checkPRT === false) { console.log("cb: false"); return false }
+    if (checkTPL === true )                       { console.log("cb: true "); return true  }
+    console.log("8. cb: LOOP", block.parent.id); return await checkBlock(block.parent.id) 
+
   } catch (error) { console.log(error) }
 }
 
-async function main() {
+const main = async () => {
 
     logseq.App.onMacroRendererSlotted(async ({ slot, payload }) => {
-      var [type, randomQ , tagQ ] = payload.arguments
-      if (type !== ':interstitial') return
-      // const block = parseQuery(randomQ,tagQ)
+      try {
+        var [type, randomQ , tagQ ] = payload.arguments
+        console.log("1. Running onMacroRendererSlotted",payload)
+        if (type !== ':interstitial') return
+  
+        //is the block on a template?
+        const templYN = await checkBlock(payload.uuid)
+        console.log("1.5 Finished check, are we a template?", await templYN)
 
-      console.log("1. Running onMacroRendererSlotted",payload)
-      //is the block in a template?
-      const templYN = checkParent(payload.uuid)
-      await templYN
-      console.log("1.5 templYN", templYN)
-      if (templYN === true) { 
-        console.log("2. We are a template")
-        await logseq.provideUI({
-          key: "luckysheet",
-          slot,
-          template: `REPLACEMENT`,
-          reset: true,
-          style: { flex: 1 },
-        })
-        return 
-      }
-      console.log("3. Not a template. Replacing block")
-      const block = await parseQuery(randomQ,tagQ)
-      console.log("4. block updated")
-      await logseq.Editor.updateBlock(payload.uuid, block)
-      console.log("5. edited")
+        if (templYN === true) { 
+          console.log("2. TRUE We are a template")
+          await logseq.provideUI({
+            key: "interstitial",
+            slot,
+            template: `REPLACEMENT`,
+            reset: true,
+            style: { flex: 1 },
+          })
+          return 
+        }
+        else {
+          console.log("3. FALSE Not a template. Replacing block")
+          const block = await parseQuery(randomQ,tagQ)
+          console.log("4. Fetched block uuid")
+          await logseq.Editor.updateBlock(payload.uuid, block)
+          console.log("5. Updated block")
+        }  
+      } catch (error) { console.log(error) }
     })
 
     logseq.App.registerCommandPalette(
