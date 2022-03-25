@@ -80,32 +80,16 @@ async function parseQuery(randomQuery,queryTag){
   } catch (error) {return false}
 }
 
-async function isTemplate(block){
-  if (block.properties) {
-    if (block.properties.template != undefined) return true
-    }
-  return false
-}
-
-async function hasParent(block) {
-  if (block.parent != null && block.parent.id !== block.page.id) return true
-  return false
-}
-
-async function getBlock(uuid) {
-  const block = await logseq.Editor.getBlock(uuid)
-  return block  
-}
-
-async function checkBlock(uuid){
+async function onTemplate(uuid){
+  //is block(uuid) on a template?
   try {
-    let block = await getBlock(uuid)
-    let checkTPL = await isTemplate(block)
-    let checkPRT = await hasParent(block)
+    const block = await logseq.Editor.getBlock(uuid)
+    const checkTPL = (block.properties && block.properties.template != undefined) ? true : false
+    const checkPRT = (block.parent != null && block.parent.id !== block.page.id)  ? true : false
 
     if (checkTPL === false && checkPRT === false) return false
     if (checkTPL === true )                       return true 
-    return await checkBlock(block.parent.id) 
+    return await onTemplate(block.parent.id) 
 
   } catch (error) { console.log(error) }
 }
@@ -126,7 +110,7 @@ const main = async () => {
       if (type !== ':interstitial') return
 
       //is the block on a template?
-      const templYN = await checkBlock(payload.uuid)        
+      const templYN = await onTemplate(payload.uuid)        
       const block = await parseQuery( randomQ, tagQ)
       // parseQuery returns false if no block can be found
       const msg = block ? `<span style="color: green">{{renderer ${payload.arguments} }}</span> (will run with template)` : `<span style="color: red">{{renderer ${payload.arguments} }}</span> (wrong tag?)`
