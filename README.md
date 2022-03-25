@@ -59,3 +59,11 @@ The parts you can alter are: `yesterday` or `random`, choose one of the two. Nex
 ## Licence
 
 MIT
+
+### Image license
+
+Image from: [flickr](https://www.flickr.com/photos/kotomi-jewelry/33599728252) (the original looks much better) <a rel="license" href="http://creativecommons.org/licenses/by-nc/2.0/"><img alt="Creative Commons License" style="border-width:0" src="https://i.creativecommons.org/l/by-nc/2.0/88x31.png" /></a><br />This image is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-nc/2.0/">Creative Commons Attribution-NonCommercial 2.0 Generic License</a>.
+
+### Font License
+
+[OFL](./OFL.txt)
