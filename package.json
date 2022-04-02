@@ -12,7 +12,7 @@
     "preview": "gh-social-preview.py -t \"Logseq Interstial Journaling Plugin\" -e \"Solves procrastination, helps with decision making and makes you totally productive\" -i \"background.png\" -f \"BebasNeue-Regular.ttf\" -b \"Montserrat-VariableFont_wght.ttf\" -l icon2.png -v \"$npm_package_version\""
   },
   "logseq": {
-    "icon": "./icon.png",
+    "icon": "./img/icon.png",
     "title": "Logseq Interstitial Journal",
     "id": "logseq-interstitial-heading-plugin"
   },
