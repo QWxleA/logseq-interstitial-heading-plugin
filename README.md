@@ -16,7 +16,7 @@ Next, it makes it possible to send a note to yourself (write yesterday, see toda
 ### Preparation
 
 - Click the 3 dots in the righthand corner and go to Settings.
-- Go to **Advanced** and enable **Developer mode**.
+- Go to **Advanced** and enable **Plug-in system**.
 - Restart the application.
 - Click 3 dots and go to Plugins (or `Esc t p`).
 

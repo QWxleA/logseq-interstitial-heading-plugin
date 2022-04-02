@@ -1,23 +1,37 @@
 import '@logseq/libs';
 import SettingSchemaDesc from '@logseq/libs/dist/LSPlugin.user';
 
-var simple = true;
-
+const markupChoices = ["markdown", "orgmode"]
 const settingsTemplate:SettingSchemaDesc[] = [{
     key: "defaultTitle",
     type: 'boolean',
     default: false,
     title: "Insert Header by default?",
-    description: "If true, \"<mod> t\" will insert a header, otherwise only the time",
+    description: "If true, \"<mod> t\" will insert a header, otherwise only the (bold) timestamp.",
    },{
+    key: "boldText",
+    type: 'boolean',
+    default: true,
+    title: "Create a bold timestamp? (If not a header)",
+    description: "Insert a bold timestamp, otherwise it is only the time.",
+  },{
+    key: "markup",
+    type: 'enum',
+    enumChoices: markupChoices,
+    enumPicker: 'radio',
+    default: markupChoices[0],
+    title: "What markup language to use?",
+    description: "Markdown and orgmode use different markup, choose yours.",
+ },{
     key: "level",
     type: 'number',
     default: 3,
     title: "Title level?",
     description: "Insert timestamped heading level, default to 3 (### HH:MM title)",
-    }
+ }
 ]
 logseq.useSettingsSchema(settingsTemplate)
+
 
 async function updateBlock(block,simple) {
     let content = /^#{1,6}\s+/.test(block.content)
@@ -25,11 +39,13 @@ async function updateBlock(block,simple) {
         : block.content;
     var today = new Date();
     let time = today.getHours() + ":" + String(today.getMinutes()).padStart(2, '0')
-    let timestamp = simple ? ' ' + time + ' ' : '**' + time + '** '
-    let header = simple ? '#'.repeat(logseq.settings.level) : ''
+    let timePrefix = (logseq.settings.markup === markupChoices[0]) ? "**" : "*"
+    let timestamp = (logseq.settings.defaultTitle) ? " " + time + " " : timePrefix + time + timePrefix + " "
+    let linePrefix = (logseq.settings.markup === markupChoices[0]) ? "#" : "*"
+    let prefix = simple ? linePrefix.repeat(logseq.settings.level) : ''
     await logseq.Editor.updateBlock(
             block.uuid,
-            header + timestamp + content
+            prefix + timestamp + content
             );
 }
 
@@ -83,7 +99,7 @@ async function parseQuery(randomQuery,queryTag){
 async function onTemplate(uuid){
   //is block(uuid) on a template?
   try {
-    const block = await logseq.Editor.getBlock(uuid)
+    const block = await logseq.Editor.getBlock(uuid, {includeChildren: false})
     const checkTPL = (block.properties && block.properties.template != undefined) ? true : false
     const checkPRT = (block.parent != null && block.parent.id !== block.page.id)  ? true : false
 
@@ -96,11 +112,11 @@ async function onTemplate(uuid){
 
 const main = async () => {
 
-  logseq.Editor.registerSlashCommand('Create Random Quote', async () => {
+  logseq.Editor.registerSlashCommand('Interstitial: Create Random Quote', async () => {
     await logseq.Editor.insertAtEditingCursor(`{{renderer :interstitial, random, quote}} `);
   });
 
-  logseq.Editor.registerSlashCommand('Create Note to Self', async () => {
+  logseq.Editor.registerSlashCommand('Interstitial: Create Note to Self', async () => {
     await logseq.Editor.insertAtEditingCursor(`{{renderer :interstitial, yesterday, ntnds}} `);
   });
 
