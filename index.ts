@@ -92,7 +92,8 @@ async function parseQuery(randomQuery,queryTag){
     const origBlock = await logseq.Editor.getBlock(flattenedResults[index].uuid, {
       includeChildren: true,
     });
-    return `((${flattenedResults[index].uuid}))`
+    // return `((${flattenedResults[index].uuid}))`
+    return flattenedResults[index].uuid
   } catch (error) {return false}
 }
 
@@ -127,11 +128,11 @@ const main = async () => {
 
       //is the block on a template?
       const templYN = await onTemplate(payload.uuid)        
-      const block = await parseQuery( randomQ, tagQ)
-      // parseQuery returns false if no block can be found
-      const msg = block ? `<span style="color: green">{{renderer ${payload.arguments} }}</span> (will run with template)` : `<span style="color: red">{{renderer ${payload.arguments} }}</span> (wrong tag?)`
+      const uuid = await parseQuery( randomQ, tagQ)
+      // parseQuery returns false if no uuid can be found
+      const msg = uuid ? `<span style="color: green">{{renderer ${payload.arguments} }}</span> (will run with template)` : `<span style="color: red">{{renderer ${payload.arguments} }}</span> (wrong tag?)`
 
-      if (templYN === true || block === false) { 
+      if (templYN === true || uuid === false) { 
           await logseq.provideUI({
           key: "interstitial",
           slot,
@@ -141,7 +142,15 @@ const main = async () => {
         })
         return 
       }
-      else { await logseq.Editor.updateBlock(payload.uuid, block ) }  
+      else { 
+        const nblock = await logseq.Editor.getBlock(uuid);
+        console.log("DB", nblock)
+        // gives an error if not defined
+        if (!nblock.properties?.id) { logseq.Editor.upsertBlockProperty(nblock.uuid, "id", nblock.uuid); }
+        // logseq.Editor.upsertBlockProperty(nblock.uuid, "id", nblock.uuid); 
+
+        await logseq.Editor.updateBlock(payload.uuid, `((${uuid}))`) 
+      }  
     } catch (error) { console.log(error) }
   })
 
