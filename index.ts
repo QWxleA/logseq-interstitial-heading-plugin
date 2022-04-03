@@ -144,11 +144,7 @@ const main = async () => {
       }
       else { 
         const nblock = await logseq.Editor.getBlock(uuid);
-        console.log("DB", nblock)
-        // gives an error if not defined
         if (!nblock.properties?.id) { logseq.Editor.upsertBlockProperty(nblock.uuid, "id", nblock.uuid); }
-        // logseq.Editor.upsertBlockProperty(nblock.uuid, "id", nblock.uuid); 
-
         await logseq.Editor.updateBlock(payload.uuid, `((${uuid}))`) 
       }  
     } catch (error) { console.log(error) }
