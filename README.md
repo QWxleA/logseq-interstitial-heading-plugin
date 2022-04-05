@@ -108,6 +108,12 @@ You can choose Markdown or Org-mode, depending on what you use.
 
 The level of the heading, where the timestamp is inserted, defaults to 3 (`### HH:MM <optional title>`)
 
+**New:** It is possible to insert custom markup *around the time*. 
+
+Example: `[<time>]` this wil print: `[20:23]`
+
+Leave blank for default timestamp.
+
 <p align="right">(<a href="#top">back to top</a>)</p>
 
 ## Templates
