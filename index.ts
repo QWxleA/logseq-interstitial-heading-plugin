@@ -2,6 +2,8 @@ import '@logseq/libs';
 import SettingSchemaDesc from '@logseq/libs/dist/LSPlugin.user';
 
 const markupChoices = ["markdown", "orgmode"]
+const markupHeadMrk = ["#", "*"]
+const markupTimeMrk = ["**", "*"]
 const settingsTemplate:SettingSchemaDesc[] = [{
     key: "defaultTitle",
     type: 'boolean',
@@ -13,7 +15,7 @@ const settingsTemplate:SettingSchemaDesc[] = [{
     type: 'boolean',
     default: true,
     title: "Create a bold timestamp? (If not a header)",
-    description: "Insert a bold timestamp, otherwise it is only the time.",
+    description: "Insert a bold timestamp. Not for header or custom text.",
   },{
     key: "markup",
     type: 'enum',
@@ -21,32 +23,64 @@ const settingsTemplate:SettingSchemaDesc[] = [{
     enumPicker: 'radio',
     default: markupChoices[0],
     title: "What markup language to use?",
-    description: "Markdown and orgmode use different markup, choose yours.",
+    description: "Markdown or Org-mode.",
  },{
     key: "level",
     type: 'number',
     default: 3,
     title: "Title level?",
     description: "Insert timestamped heading level, default to 3 (### HH:MM title)",
- }
+ },{
+  key: "cstTime",
+  type: 'string',
+  default: "",
+  title: "Custom time stamp?",
+  description: "Leave empty for default, \n Use '<time>' as placeholder.\nExample: '[<time>]'",
+}
 ]
 logseq.useSettingsSchema(settingsTemplate)
 
+async function updateBlock(block,insertHeader) {
 
-async function updateBlock(block,simple) {
-    let content = /^#{1,6}\s+/.test(block.content)
-        ? block.content.replace(/^#{1,6}\s+/, '')
-        : block.content;
-    var today = new Date();
-    let time = today.getHours() + ":" + String(today.getMinutes()).padStart(2, '0')
-    let timePrefix = (logseq.settings.markup === markupChoices[0]) ? "**" : "*"
-    let timestamp = (logseq.settings.defaultTitle) ? " " + time + " " : timePrefix + time + timePrefix + " "
-    let linePrefix = (logseq.settings.markup === markupChoices[0]) ? "#" : "*"
-    let prefix = simple ? linePrefix.repeat(logseq.settings.level) : ''
-    await logseq.Editor.updateBlock(
-            block.uuid,
-            prefix + timestamp + content
-            );
+  //prefixB
+  let prefix  = markupHeadMrk[markupChoices.indexOf(logseq.settings.markup)].repeat(logseq.settings.level)
+  const prefixB = (insertHeader) ? prefix : ""
+
+  //timeB
+  const today = new Date();
+  const time = today.getHours() + ":" + String(today.getMinutes()).padStart(2, '0')
+  //FIX: don't bold if header
+  const timePrefix = (insertHeader) ? "" : markupTimeMrk[markupChoices.indexOf(logseq.settings.markup)]
+  const timeHolder = (logseq.settings.cstTime) 
+      ? logseq.settings.cstTime
+      : timePrefix + "<time>" + timePrefix
+  const reTime = new RegExp("<time>")
+  const timeB = timeHolder.replace(reTime, time)
+
+  //contentB
+  prefix = prefix.replace(/\*/g,"\\*") //fix regex
+  const re = new RegExp(`^${(prefix === "*" ) ? "\*" : prefix}{1,6}\s+`)
+  let contentB = re.test(block.content)
+      ? block.content.replace(re, '')
+      : block.content;
+
+  // const mdHeader = "#".repeat(logseq.settings.level)
+
+  // const linePrefix = (logseq.settings.markup) 
+  //     ? markupHeadMrk[logseq.settings.markup] 
+  //     : logseq.settings.cstPrefix
+
+
+  // const timePrefix = (logseq.settings.markup) ?  markupTimeMrk[logseq.settings.markup] : false
+  // let timestamp = (logseq.settings.defaultTitle) ? " <time> " : timePrefix + "<time>" + timePrefix + " "
+  // const re2 = 
+  
+  // let prefix = simple ? linePrefix.repeat(logseq.settings.level) : ''
+
+  await logseq.Editor.updateBlock(
+          block.uuid,
+          `${prefixB} ${timeB} ${contentB} `
+          );
 }
 
 async function insertInterstitional(simple) {
@@ -99,6 +133,7 @@ async function parseQuery(randomQuery,queryTag){
 
 async function onTemplate(uuid){
   //is block(uuid) on a template?
+  //returns boolean
   try {
     const block = await logseq.Editor.getBlock(uuid, {includeChildren: false})
     const checkTPL = (block.properties && block.properties.template != undefined) ? true : false
