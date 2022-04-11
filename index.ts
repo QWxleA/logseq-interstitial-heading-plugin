@@ -1,5 +1,6 @@
 import '@logseq/libs';
 import SettingSchemaDesc from '@logseq/libs/dist/LSPlugin.user';
+// import axios from "axios";
 
 const markupChoices = ["markdown", "orgmode"]
 const markupHeadMrk = ["#", "*"]
@@ -36,6 +37,12 @@ const settingsTemplate:SettingSchemaDesc[] = [{
   default: "",
   title: "Custom time stamp?",
   description: "Leave empty for default, \n Use '<time>' as placeholder.\nExample: '[<time>]'",
+},{
+  key: "padHour",
+  type: 'boolean',
+  default: true,
+  title: "Pad hour with zeros?",
+  description: "If true it will print: 08:24, otherwise 8:24",
 }
 ]
 logseq.useSettingsSchema(settingsTemplate)
@@ -48,7 +55,9 @@ async function updateBlock(block,insertHeader) {
 
   //timeB
   const today = new Date();
-  const time = today.getHours() + ":" + String(today.getMinutes()).padStart(2, '0')
+  const time = String(today.getHours()).padStart((logseq.settings.padHour) ? 2 : 1, '0') + 
+                ":" + 
+                String(today.getMinutes()).padStart(2, '0')
   //FIX: don't bold if header
   const timePrefix = (insertHeader) ? "" : markupTimeMrk[markupChoices.indexOf(logseq.settings.markup)]
   const timeHolder = (logseq.settings.cstTime) 
