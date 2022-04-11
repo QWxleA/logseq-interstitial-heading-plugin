@@ -42,7 +42,7 @@ const settingsTemplate:SettingSchemaDesc[] = [{
   type: 'boolean',
   default: true,
   title: "Pad hour with zeros?",
-  description: "If true it will print: 08:24, otherwise 8:24",
+  description: "If true it will print: 08:24 (default), otherwise 8:24",
 }
 ]
 logseq.useSettingsSchema(settingsTemplate)
