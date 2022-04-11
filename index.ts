@@ -48,7 +48,7 @@ const settingsTemplate:SettingSchemaDesc[] = [{
 logseq.useSettingsSchema(settingsTemplate)
 
 async function updateBlock(block,insertHeader) {
-
+  // true = header - false = timestamp  
   //prefixB
   let prefix  = markupHeadMrk[markupChoices.indexOf(logseq.settings.markup)].repeat(logseq.settings.level)
   const prefixB = (insertHeader) ? prefix : ""
@@ -58,8 +58,8 @@ async function updateBlock(block,insertHeader) {
   const time = String(today.getHours()).padStart((logseq.settings.padHour) ? 2 : 1, '0') + 
                 ":" + 
                 String(today.getMinutes()).padStart(2, '0')
-  //FIX: don't bold if header
-  const timePrefix = (insertHeader) ? "" : markupTimeMrk[markupChoices.indexOf(logseq.settings.markup)]
+  // Don't bold time if header of if logseq.settings.boldText=false
+  const timePrefix = (insertHeader || ! logseq.settings.boldText) ? "" : markupTimeMrk[markupChoices.indexOf(logseq.settings.markup)]
   const timeHolder = (logseq.settings.cstTime) 
       ? logseq.settings.cstTime
       : timePrefix + "<time>" + timePrefix
@@ -93,6 +93,7 @@ async function updateBlock(block,insertHeader) {
 }
 
 async function insertInterstitional(simple) {
+  // true = header - false = timestamp
   const selected = await logseq.Editor.getSelectedBlocks();
   if (selected && selected.length > 1) {
     for (let block of selected) {
@@ -204,6 +205,7 @@ const main = async () => {
         },
       },
       async () => {
+        // true = header - false = timestamp
         await insertInterstitional(logseq.settings.defaultTitle ? true : false);
       }
     );
@@ -218,6 +220,7 @@ const main = async () => {
         },
       },
       async () => {
+        // true = header - false = timestamp
         await insertInterstitional(logseq.settings.defaultTitle ? false : true);
       }
     );
