@@ -48,7 +48,7 @@ This plugin helps you quickly create time-stamps, without interupting your thoug
 
 > It is true. I am 217% happier now. 
 >
->— <cite>Exited customer</cite>
+>— <cite>Excited customer</cite>
 
 <!-- TABLE OF CONTENTS -->
 <details>
