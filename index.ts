@@ -2,6 +2,7 @@ import '@logseq/libs';
 import SettingSchemaDesc from '@logseq/libs/dist/LSPlugin.user';
 // import axios from "axios";
 
+const pluginName  = ["logseq-interstitial", "Logseq Interstitial"]
 const markupChoices = ["markdown", "orgmode"]
 const markupHeadMrk = ["#", "*"]
 const markupTimeMrk = ["**", "*"]
@@ -11,13 +12,15 @@ const settingsTemplate:SettingSchemaDesc[] = [{
     default: false,
     title: "Insert Header by default?",
     description: "If true, \"<mod> t\" will insert a header, otherwise only the (bold) timestamp.",
-   },{
+   },
+   {
     key: "boldText",
     type: 'boolean',
     default: true,
     title: "Create a bold timestamp? (If not a header)",
     description: "Insert a bold timestamp. Not for header or custom text.",
-  },{
+  },
+  {
     key: "markup",
     type: 'enum',
     enumChoices: markupChoices,
@@ -25,28 +28,43 @@ const settingsTemplate:SettingSchemaDesc[] = [{
     default: markupChoices[0],
     title: "What markup language to use?",
     description: "Markdown or Org-mode.",
- },{
+ },
+ {
     key: "level",
     type: 'number',
     default: 3,
     title: "Title level?",
     description: "Insert timestamped heading level, default to 3 (### HH:MM title)",
- },{
+ },
+ {
   key: "cstTime",
   type: 'string',
   default: "",
   title: "Custom time stamp?",
   description: "Leave empty for default, \n Use '<time>' as placeholder.\nExample: '[<time>]'",
-},{
+},
+{
   key: "padHour",
   type: 'boolean',
   default: true,
   title: "Pad hour with zeros?",
   description: "If true it will print: 08:24 (default), otherwise 8:24",
+},
+{ //KeyboardShortcut-l -> interstial-time-stamp-l !!!!
+  key: "KeyboardShortcut_l",
+  type: "string",
+  title: "Keyboard Shortcut",
+  description: "Enter your desired keyboard shortcut for the command",
+  default: "mod+t"
+},
+{ 
+  key: "KeyboardShortcut_h",
+  type: "string",
+  title: "Keyboard Shortcut 2",
+  description: "Enter your desired keyboard shortcut for the command",
+  default: "mod+shift+t"
 }
 ]
-logseq.useSettingsSchema(settingsTemplate)
-
 async function updateBlock(block,insertHeader) {
   // true = header - false = timestamp  
   //prefixB
@@ -157,6 +175,8 @@ async function onTemplate(uuid){
 }
 
 const main = async () => {
+  console.log(`Plugin: ${pluginName[1]} loaded`)
+  logseq.useSettingsSchema(settingsTemplate)
 
   logseq.Editor.registerSlashCommand('Interstitial: Create Random Quote', async () => {
     await logseq.Editor.insertAtEditingCursor(`{{renderer :interstitial, random, quote}} `);
@@ -195,13 +215,13 @@ const main = async () => {
     } catch (error) { console.log(error) }
   })
 
-    logseq.App.registerCommandPalette(
+  const registerKeyTitle = () => logseq.App.registerCommandPalette(
       {
-        key: `interstial-time-stamp`,
+        key: `interstial-time-stamp_l`,
         label: `Insert interstitial line`,
         keybinding: {
           mode: 'global',
-          binding: 'mod+t',
+          binding: logseq.settings.KeyboardShortcut_l.toLowerCase()
         },
       },
       async () => {
@@ -210,13 +230,13 @@ const main = async () => {
       }
     );
 
-    logseq.App.registerCommandPalette(
+    const registerKeyHeading = () => logseq.App.registerCommandPalette(
       {
-        key: `interstial-time-stamp-h`,
+        key: `interstial-time-stamp_h`,
         label: `Insert interstitial heading`,
         keybinding: {
           mode: 'global',
-          binding: 'mod+shift+t',
+          binding: logseq.settings.KeyboardShortcut_h.toLowerCase()
         },
       },
       async () => {
@@ -224,6 +244,22 @@ const main = async () => {
         await insertInterstitional(logseq.settings.defaultTitle ? false : true);
       }
     );
+    
+    function unreg(setKey) {
+      //unregister keybindings
+      const re:RegExp=/^KeyboardShortcut(.*)/
+      if (re.test(setKey.key)) {
+        const key=re.exec(setKey.key)
+        // console.log("DB2", `interstial-time-stamp${key[1]}`)
+        logseq.App.unregister_plugin_simple_command(`${logseq.baseInfo.id}/interstial-time-stamp${key[1]}`) 
+      }
+    }
+
+    logseq.onSettingsChanged((_updated) => {
+      settingsTemplate.forEach((x, i) => unreg(x))
+      registerKeyHeading()
+      registerKeyTitle()
+    }); 
 }
 
 logseq.ready(main).catch(console.error);
