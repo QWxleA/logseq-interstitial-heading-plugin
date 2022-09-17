@@ -148,7 +148,7 @@ async function parseQuery(randomQuery,queryTag){
     let results = await logseq.DB.datascriptQuery(query) 
     //Let this be, it won't hurt even if there's only one hit
     let flattenedResults = results.map((mappedQuery) => ({
-      uuid: mappedQuery[0].uuid['$uuid$'],
+      uuid: mappedQuery[0].uuid,
     }))
     let index = Math.floor(Math.random()*flattenedResults.length)
     const origBlock = await logseq.Editor.getBlock(flattenedResults[index].uuid, {
